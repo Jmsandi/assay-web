@@ -5,18 +5,15 @@ import {
   BookOpen,
   ChevronDown,
   CircleHelp,
-  Info,
   KeyRound,
   LayoutGrid,
   LogOut,
   Moon,
   ScanFace,
-  Search,
   Settings,
   Sun,
   Wallet,
   Webhook,
-  X,
 } from 'lucide-react'
 import { Logo, useTheme } from '../components/ui'
 import { cx } from '../lib/format'
@@ -59,18 +56,12 @@ export default function AppLayout() {
             ))}
           </nav>
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
-            <div className="hidden items-center gap-1 rounded-full bg-panel p-1.5 sm:flex">
-              <RailButton label="Search">
-                <Search className="size-[18px]" />
-              </RailButton>
+            <div className="hidden rounded-full bg-panel p-1.5 sm:block">
               <RailButton label="Notifications">
                 <span className="relative">
                   <Bell className="size-[18px]" />
                   <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-brand-500 ring-2 ring-panel" />
                 </span>
-              </RailButton>
-              <RailButton label="Status">
-                <Info className="size-[18px]" />
               </RailButton>
             </div>
             <div className="relative">
@@ -96,9 +87,9 @@ export default function AppLayout() {
           </div>
         </header>
 
-        <div className="mt-5 flex gap-5">
+        <div className="mt-6 flex gap-6">
           {/* Left rail (desktop) */}
-          <aside className="hidden w-14 shrink-0 flex-col items-center gap-4 md:flex" aria-label="Quick actions">
+          <aside className="sticky top-6 hidden h-[calc(100dvh-10rem)] w-14 shrink-0 flex-col items-center gap-4 md:flex" aria-label="Quick actions">
             <div className="flex flex-col gap-1 rounded-full bg-panel p-1.5">
               <RailButton label="Light mode" active={!dark} onClick={() => setDark(false)}>
                 <Sun className="size-[18px]" />
@@ -107,13 +98,6 @@ export default function AppLayout() {
                 <Moon className="size-[18px]" />
               </RailButton>
             </div>
-            <nav className="flex flex-col gap-1 rounded-full bg-panel p-1.5" aria-label="Sections">
-              {tabs.map((t) => (
-                <NavLink key={t.to} to={t.to} end={t.end} title={t.label} aria-label={t.label} className={({ isActive }) => cx('grid size-10 place-items-center rounded-full transition', isActive ? 'bg-ink text-panel' : 'text-muted hover:bg-tile hover:text-ink')}>
-                  <t.icon className="size-[18px]" />
-                </NavLink>
-              ))}
-            </nav>
             <div className="mt-auto flex flex-col gap-1 rounded-full bg-panel p-1.5">
               <a href="https://assay.geneline-x.net" target="_blank" rel="noreferrer" title="API docs" aria-label="API docs" className="grid size-10 place-items-center rounded-full text-muted hover:bg-tile hover:text-ink">
                 <BookOpen className="size-[18px]" />
@@ -128,7 +112,6 @@ export default function AppLayout() {
           </aside>
 
           <main className="min-w-0 flex-1" key={pathname}>
-            <DemoNotice />
             <Outlet />
           </main>
         </div>
@@ -147,20 +130,6 @@ export default function AppLayout() {
           Theme
         </button>
       </nav>
-    </div>
-  )
-}
-
-function DemoNotice() {
-  const [hidden, setHidden] = useState(false)
-  if (hidden) return null
-  return (
-    <div className="mb-4 flex items-center gap-3 rounded-2xl bg-brand-50 px-4 py-2.5 text-sm text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
-      <Info className="size-4 shrink-0" />
-      <span className="flex-1">Demo data. The portal is not connected to the Assay API yet, and prices are placeholders.</span>
-      <button onClick={() => setHidden(true)} aria-label="Dismiss" className="grid size-7 place-items-center rounded-full hover:bg-brand-100 dark:hover:bg-brand-500/20">
-        <X className="size-3.5" />
-      </button>
     </div>
   )
 }

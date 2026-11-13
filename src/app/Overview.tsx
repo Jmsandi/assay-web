@@ -17,28 +17,33 @@ import {
 } from 'lucide-react'
 import { Card, Change, OutcomeBadge, Pill } from '../components/ui'
 import { apiKeys, billing, monthly, organisation, stats, verifications, type Channel } from '../data/mock'
-import { cx, formatCount, formatDateTime, formatLe, formatLeCompact, greeting } from '../lib/format'
+import { cx, formatCount, formatDateTime, formatLe, greeting } from '../lib/format'
 
 export default function Overview() {
   const first = organisation.owner.name.split(' ')[0]
   return (
     <div className="rise">
-      <h1 className="text-3xl font-bold tracking-tight sm:text-[40px]">
-        {greeting()}, {first}
-      </h1>
-      <p className="mt-1.5 text-sm text-muted sm:text-base">Keep an eye on your verifications, balance and keys.</p>
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-[40px]">
+          {greeting()}, {first}
+        </h1>
+        <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-300" title="Not connected to the Assay API yet; prices are placeholders">
+          Demo data
+        </span>
+      </div>
+      <p className="mt-1.5 text-sm text-muted sm:text-base">Here&apos;s how your verifications are going this month.</p>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(300px,0.95fr)_minmax(0,2.05fr)]">
+      <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(300px,0.95fr)_minmax(0,2.05fr)]">
         {/* Left column */}
-        <div className="grid grid-cols-1 content-start gap-4 md:grid-cols-2 xl:grid-cols-1">
+        <div className="grid grid-cols-1 content-start gap-6 md:grid-cols-2 xl:grid-cols-1">
           <BalanceCard />
           <SpendingCap />
           <KeysCard />
         </div>
 
         {/* Right area */}
-        <div className="grid grid-cols-1 content-start gap-4">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+        <div className="grid grid-cols-1 content-start gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
             <StatTiles />
             <OutcomesChart />
           </div>
@@ -62,38 +67,15 @@ function BalanceCard() {
       </div>
       <p className="mt-1 text-[32px] font-bold tracking-tight">{formatLe(billing.balanceCents)}</p>
       <div className="mt-1 flex items-center gap-2 text-xs text-muted">
-        <Change pct={billing.changePct} /> than last month · about {formatCount(left)} verifications left
+        <Change pct={billing.changePct} /> about {formatCount(left)} verifications left
       </div>
-      <div className="mt-5 grid grid-cols-2 gap-3">
+      <div className="mt-6 grid grid-cols-2 gap-3">
         <Link to="/app/billing?topup=1" className="inline-flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-3.5 text-sm font-semibold text-panel hover:bg-ink-soft">
           <Wallet className="size-4" /> Top up
         </Link>
         <Link to="/app/billing" className="inline-flex items-center justify-center gap-2 rounded-full bg-tile px-4 py-3.5 text-sm font-semibold hover:bg-line">
           <FileText className="size-4" /> Statement
         </Link>
-      </div>
-      <div className="mt-4 rounded-3xl bg-tile p-3">
-        <p className="px-1 text-sm">
-          <span className="font-semibold">Modes</span>
-          <span className="text-muted"> | Live and test</span>
-        </p>
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          {[
-            { label: 'Live', value: formatLeCompact(billing.balanceCents), note: 'Billed per decision', state: 'Active', tone: 'text-ok' },
-            { label: 'Test', value: 'Free', note: '100 sessions a day', state: 'Active', tone: 'text-ok' },
-            { label: 'Top-up', value: formatLeCompact(500_000), note: 'Afrimoney', state: 'Pending', tone: 'text-warn' },
-          ].map((m) => (
-            <div key={m.label} className="min-w-0 rounded-2xl bg-panel p-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold">{m.label}</span>
-                <MoreHorizontal className="size-3.5 text-muted" />
-              </div>
-              <p className="mt-2 truncate text-[13px] font-bold">{m.value}</p>
-              <p className="truncate text-[10px] text-muted">{m.note}</p>
-              <p className={cx('mt-1 text-[11px] font-medium', m.tone)}>{m.state}</p>
-            </div>
-          ))}
-        </div>
       </div>
     </Card>
   )
@@ -252,7 +234,7 @@ const channel: Record<Channel, { label: string; icon: typeof Link2 }> = {
   api_upload: { label: 'API upload', icon: Upload },
 }
 
-export function VerificationTable({ limit, showMode = false }: { limit?: number; showMode?: boolean }) {
+export function VerificationTable({ limit, showMode = false, compact = false }: { limit?: number; showMode?: boolean; compact?: boolean }) {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const rows = useMemo(() => verifications.filter((v) => v.sessionId.includes(query.trim())).slice(0, limit), [query, limit])
@@ -266,7 +248,8 @@ export function VerificationTable({ limit, showMode = false }: { limit?: number;
   return (
     <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-semibold">Recent verifications</h2>
+        <h2 className="text-lg font-semibold">{compact ? 'Recent verifications' : 'All verifications'}</h2>
+        {!compact && (
         <div className="flex gap-2">
           <label className="flex flex-1 items-center gap-2 rounded-full border border-line px-4 py-2.5 sm:w-56 sm:flex-none">
             <Search className="size-4 text-muted" />
@@ -276,21 +259,24 @@ export function VerificationTable({ limit, showMode = false }: { limit?: number;
             Filter <Filter className="size-4" />
           </button>
         </div>
+        )}
       </div>
-      <div className="mt-4 overflow-x-auto rounded-3xl border border-line">
-        <table className="w-full min-w-[640px] text-left text-sm">
+      <div className={cx('overflow-x-auto rounded-3xl border border-line', compact ? 'mt-5' : 'mt-4')}>
+        <table className={cx('w-full text-left text-sm', compact ? 'min-w-[520px]' : 'min-w-[640px]')}>
           <thead className="bg-tile text-muted">
             <tr>
-              <th className="w-12 py-3 pl-4 font-medium">
-                <span className="sr-only">Select</span>
-              </th>
-              <th className="py-3 font-medium">Session</th>
+              {!compact && (
+                <th className="w-12 py-3 pl-4 font-medium">
+                  <span className="sr-only">Select</span>
+                </th>
+              )}
+              <th className={cx('py-3 font-medium', compact && 'pl-5')}>Session</th>
               <th className="py-3 font-medium">Channel</th>
               {showMode && <th className="py-3 font-medium">Mode</th>}
               <th className="py-3 font-medium">Cost</th>
               <th className="py-3 font-medium">Outcome</th>
               <th className="py-3 font-medium">Date</th>
-              <th className="w-10 py-3" />
+              {!compact && <th className="w-10 py-3" />}
             </tr>
           </thead>
           <tbody>
@@ -299,10 +285,12 @@ export function VerificationTable({ limit, showMode = false }: { limit?: number;
               const isSel = selected.has(v.sessionId)
               return (
                 <tr key={v.sessionId} className={cx('border-t border-line', isSel && 'bg-tile')}>
+                  {!compact && (
                   <td className="py-3.5 pl-4">
                     <input type="checkbox" checked={isSel} onChange={() => toggle(v.sessionId)} className="size-4 accent-[#141416]" aria-label={`Select ${v.sessionId}`} />
                   </td>
-                  <td className="py-3.5 font-mono text-xs">{v.sessionId.slice(0, 17)}…</td>
+                  )}
+                  <td className={cx('py-4 font-mono text-xs', compact && 'pl-5')}>{v.sessionId.slice(0, 17)}…</td>
                   <td className="py-3.5">
                     <span className="inline-flex items-center gap-2">
                       <span className="grid size-7 place-items-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-500/15">
@@ -321,11 +309,13 @@ export function VerificationTable({ limit, showMode = false }: { limit?: number;
                     <OutcomeBadge outcome={v.outcome} />
                   </td>
                   <td className="py-3.5 whitespace-nowrap text-muted">{formatDateTime(v.decidedAt)}</td>
+                  {!compact && (
                   <td className="py-3.5 pr-3">
                     <button className="grid size-8 place-items-center rounded-full text-muted hover:bg-tile" aria-label="More">
                       <MoreHorizontal className="size-4" />
                     </button>
                   </td>
+                  )}
                 </tr>
               )
             })}
@@ -346,7 +336,7 @@ export function VerificationTable({ limit, showMode = false }: { limit?: number;
 function RecentVerifications() {
   return (
     <Card>
-      <VerificationTable limit={5} />
+      <VerificationTable limit={5} compact />
       <div className="mt-4 flex justify-end">
         <Link to="/app/verifications" className="rounded-full bg-tile px-5 py-2.5 text-sm font-semibold hover:bg-line">
           View all

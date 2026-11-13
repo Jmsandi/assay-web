@@ -1,39 +1,21 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import {
-  ArrowRight,
-  BadgeCheck,
-  Building2,
-  Check,
-  Code2,
-  Fingerprint,
-  IdCard,
-  Landmark,
-  Lock,
-  Menu,
-  ScanFace,
-  ShieldCheck,
-  Smartphone,
-  Timer,
-  Trash2,
-  Webhook,
-  X,
-  Zap,
-} from 'lucide-react'
+import { ArrowRight, BadgeCheck, Check, Fingerprint, Lock, Menu, Quote, ScanFace, ShieldCheck, Smartphone, Star, Trash2, Webhook, X } from 'lucide-react'
 import { Logo } from '../components/ui'
-import { cx } from '../lib/format'
+import { CountUp, Photo, Reveal } from '../components/motion'
+import { images } from '../content/images'
 
 const nav = [
-  { href: '#product', label: 'Product' },
+  { href: '#features', label: 'Features' },
+  { href: '#coverage', label: 'Coverage' },
   { href: '#how', label: 'How it works' },
   { href: '#pricing', label: 'Pricing' },
-  { href: '#security', label: 'Security' },
 ]
 
 function Header() {
   const [open, setOpen] = useState(false)
   return (
-    <header className="sticky top-0 z-40 border-b border-transparent bg-page/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 bg-page/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
         <Logo />
         <nav className="hidden items-center gap-1 rounded-full bg-panel p-1.5 md:flex" aria-label="Main">
@@ -44,11 +26,11 @@ function Header() {
           ))}
         </nav>
         <div className="hidden items-center gap-2 md:flex">
-          <Link to="/login" className="rounded-full px-4 py-2.5 text-sm font-semibold text-ink hover:bg-panel">
+          <Link to="/login" className="rounded-full px-4 py-2.5 text-sm font-semibold hover:bg-panel">
             Log in
           </Link>
           <Link to="/signup" className="rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-panel hover:bg-ink-soft">
-            Get started
+            Register
           </Link>
         </div>
         <button className="grid size-10 place-items-center rounded-full bg-panel md:hidden" onClick={() => setOpen((o) => !o)} aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open}>
@@ -67,7 +49,7 @@ function Header() {
               Log in
             </Link>
             <Link to="/signup" className="rounded-full bg-ink px-4 py-3 text-center text-sm font-semibold text-panel">
-              Get started
+              Register
             </Link>
           </div>
         </div>
@@ -76,87 +58,40 @@ function Header() {
   )
 }
 
-/** The capture flow on a phone, with result cards floating around it. */
-function HeroVisual() {
+function Phone({ className = '' }: { className?: string }) {
   return (
-    <div className="relative mx-auto h-[460px] w-full max-w-[420px] sm:h-[520px]">
-      <div className="bg-brand-gradient absolute inset-x-6 top-10 bottom-6 rounded-[44px] opacity-90" aria-hidden="true" />
-      <div className="absolute inset-x-6 top-10 bottom-6 rounded-[44px] bg-[radial-gradient(circle_at_30%_20%,rgb(255_255_255/0.35),transparent_55%)]" aria-hidden="true" />
-
-      {/* Phone */}
-      <div className="float-slower absolute top-0 left-1/2 w-[230px] -translate-x-1/2 rounded-[38px] border-[7px] border-[#141416] bg-[#141416] shadow-2xl sm:w-[250px]">
-        <div className="overflow-hidden rounded-[31px] bg-white">
-          <div className="flex items-center justify-between px-5 pt-3 pb-2 text-[10px] font-semibold text-[#141416]">
-            <span>9:41</span>
-            <span className="h-4 w-16 rounded-full bg-[#141416]" />
-            <span>5G</span>
-          </div>
-          <div className="px-4 pb-5">
-            <p className="text-[11px] font-semibold text-[#e14d1c]">Step 2 of 3</p>
-            <p className="mt-1 text-base leading-tight font-bold text-[#141416]">Photograph the front of your ID</p>
-            <div className="relative mt-3 aspect-[1.58] rounded-2xl bg-[#1f1f23] p-3">
-              <div className="absolute inset-2 rounded-xl border-2 border-dashed border-white/50" />
-              <div className="relative flex h-full gap-2 rounded-lg bg-gradient-to-br from-[#e8edf5] to-[#cfd8e6] p-2">
-                <div className="grid w-1/3 place-items-center rounded-md bg-[#b6c2d4]">
-                  <ScanFace className="size-6 text-[#5d6b82]" />
-                </div>
-                <div className="flex-1 space-y-1.5 pt-1">
-                  <div className="h-1.5 w-4/5 rounded bg-[#9aa8bd]" />
-                  <div className="h-1.5 w-3/5 rounded bg-[#9aa8bd]" />
-                  <div className="h-1.5 w-2/3 rounded bg-[#9aa8bd]" />
-                  <div className="h-1.5 w-1/2 rounded bg-[#9aa8bd]" />
-                </div>
+    <div className={'w-[200px] rounded-[34px] border-[6px] border-[#141416] bg-[#141416] shadow-2xl ' + className}>
+      <div className="overflow-hidden rounded-[28px] bg-white">
+        <div className="flex items-center justify-between px-4 pt-2.5 pb-1.5 text-[9px] font-semibold text-[#141416]">
+          <span>9:41</span>
+          <span className="h-3.5 w-14 rounded-full bg-[#141416]" />
+          <span>5G</span>
+        </div>
+        <div className="px-3.5 pb-4">
+          <p className="text-[10px] font-semibold text-[#e14d1c]">Step 2 of 3</p>
+          <p className="mt-0.5 text-sm leading-tight font-bold text-[#141416]">Photograph the front of your ID</p>
+          <div className="relative mt-2.5 aspect-[1.58] rounded-xl bg-[#1f1f23] p-2">
+            <div className="absolute inset-1.5 rounded-lg border-2 border-dashed border-white/50" />
+            <div className="relative flex h-full gap-1.5 rounded-md bg-gradient-to-br from-[#e8edf5] to-[#cfd8e6] p-1.5">
+              <div className="grid w-1/3 place-items-center rounded bg-[#b6c2d4]">
+                <ScanFace className="size-5 text-[#5d6b82]" />
+              </div>
+              <div className="flex-1 space-y-1 pt-1">
+                <div className="h-1 w-4/5 rounded bg-[#9aa8bd]" />
+                <div className="h-1 w-3/5 rounded bg-[#9aa8bd]" />
+                <div className="h-1 w-2/3 rounded bg-[#9aa8bd]" />
               </div>
             </div>
-            <div className="mt-3 flex gap-1.5">
-              {['Sharp', 'No glare', 'Well lit'].map((t) => (
-                <span key={t} className="flex items-center gap-1 rounded-full bg-[#e7f6ec] px-2 py-1 text-[9px] font-semibold text-[#17a34a]">
-                  <Check className="size-2.5" />
-                  {t}
-                </span>
-              ))}
-            </div>
-            <div className="mt-4 rounded-full bg-[#141416] py-2.5 text-center text-xs font-semibold text-white">Take photo</div>
           </div>
-        </div>
-      </div>
-
-      {/* Floating results */}
-      <div className="float-slow absolute top-24 -left-2 w-44 rounded-2xl bg-white p-3 shadow-[var(--shadow-float)] sm:-left-6">
-        <div className="flex items-center gap-2">
-          <span className="grid size-8 place-items-center rounded-full bg-[#e7f6ec] text-[#17a34a]">
-            <ScanFace className="size-4" />
-          </span>
-          <div>
-            <p className="text-[11px] text-[#6f7178]">Face match</p>
-            <p className="text-sm font-bold text-[#141416]">Strong match</p>
+          <div className="mt-2.5 flex gap-1">
+            {['Sharp', 'No glare'].map((t) => (
+              <span key={t} className="flex items-center gap-0.5 rounded-full bg-[#e7f6ec] px-1.5 py-0.5 text-[8px] font-semibold text-[#17a34a]">
+                <Check className="size-2" />
+                {t}
+              </span>
+            ))}
           </div>
-        </div>
-      </div>
-      <div className="float-slower absolute top-56 -right-1 w-44 rounded-2xl bg-white p-3 shadow-[var(--shadow-float)] sm:-right-6">
-        <div className="flex items-center gap-2">
-          <span className="grid size-8 place-items-center rounded-full bg-[#fff3ee] text-[#e14d1c]">
-            <Fingerprint className="size-4" />
-          </span>
-          <div>
-            <p className="text-[11px] text-[#6f7178]">Liveness</p>
-            <p className="text-sm font-bold text-[#141416]">Head turn passed</p>
-          </div>
-        </div>
-      </div>
-      <div className="float-slow absolute bottom-0 left-1/2 w-60 -translate-x-1/2 rounded-2xl bg-[#141416] p-3.5 text-white shadow-[var(--shadow-float)]">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-[11px] text-white/60">Decision</p>
-            <p className="text-base font-bold">Approved</p>
-          </div>
-          <div className="text-right">
-            <p className="text-[11px] text-white/60">Time</p>
-            <p className="text-base font-bold">1.1 s</p>
-          </div>
-          <span className="grid size-9 place-items-center rounded-full bg-[#17a34a]">
-            <BadgeCheck className="size-5" />
-          </span>
+          <div className="mt-3 rounded-full bg-[#141416] py-2 text-center text-[10px] font-semibold text-white">Take photo</div>
         </div>
       </div>
     </div>
@@ -165,160 +100,270 @@ function HeroVisual() {
 
 function Hero() {
   return (
-    <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 pt-8 pb-16 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pt-14">
-      <div className="rise">
-        <span className="inline-flex items-center gap-2 rounded-full bg-panel px-3 py-1.5 text-xs font-semibold text-muted">
-          <span className="size-1.5 rounded-full bg-brand-500" />
-          ID verification for Sierra Leone
-        </span>
-        <h1 className="mt-5 text-4xl leading-[1.08] font-extrabold tracking-tight sm:text-5xl lg:text-[56px]">
-          Know who your customers are, <span className="squiggle">in seconds.</span>
-        </h1>
-        <p className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-          Assay checks a national ID card, matches the face to the holder and confirms a real person is on camera, through one API. Send your customer a link, get the decision by webhook.
-        </p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Link to="/signup" className="bg-brand-gradient inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-[0_12px_24px_-10px_rgb(242_100_48/0.8)] hover:brightness-105">
-            Start free in test mode
-            <ArrowRight className="size-4" />
-          </Link>
-          <a href="#how" className="inline-flex items-center justify-center gap-2 rounded-full bg-panel px-6 py-3.5 text-sm font-semibold hover:bg-white/70">
-            <Code2 className="size-4" />
-            See how it works
-          </a>
-        </div>
-        <p className="mt-5 flex items-center gap-2 text-xs text-muted">
-          <ShieldCheck className="size-4 text-ok" />
-          No card needed for test mode. Live access after a short business review.
-        </p>
-      </div>
-      <HeroVisual />
-    </section>
-  )
-}
-
-const facts = [
-  { value: '1.1 s', label: 'Typical decision time after capture' },
-  { value: '3', label: 'Checks in every verification' },
-  { value: '30 days', label: 'Then images are deleted automatically' },
-  { value: 'Le', label: 'Prepaid in Leones, mobile money top-ups' },
-]
-
-function FactsBand() {
-  return (
-    <section className="mx-auto max-w-6xl px-4 sm:px-6">
-      <div className="bg-brand-gradient grid grid-cols-2 gap-6 rounded-[32px] px-6 py-8 text-white sm:px-10 lg:grid-cols-4">
-        {facts.map((f) => (
-          <div key={f.label} className="flex items-center gap-3">
-            <span className="text-3xl font-extrabold tracking-tight sm:text-4xl">{f.value}</span>
-            <span className="max-w-[9rem] text-xs leading-snug text-white/85">{f.label}</span>
+    <section className="relative mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:pt-10">
+      <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.05fr]">
+        <Reveal effect="left">
+          <span className="inline-flex items-center gap-2 rounded-full bg-panel px-3 py-1.5 text-xs font-semibold text-muted">
+            <span className="size-1.5 rounded-full bg-brand-500" />
+            ID verification for Sierra Leone
+          </span>
+          <h1 className="mt-5 text-[40px] leading-[1.05] font-extrabold tracking-tight sm:text-6xl">
+            Verify customers
+            <br />
+            the <span className="squiggle">easy way!</span>
+          </h1>
+          <p className="mt-5 max-w-md text-base leading-relaxed text-muted sm:text-lg">Send a link. Your customer photographs their ID and takes a quick selfie. You get a clear decision in seconds.</p>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Link to="/signup" className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-panel hover:bg-ink-soft">
+              Get started
+              <ArrowRight className="size-4" />
+            </Link>
+            <a href="#how" className="rounded-full px-5 py-3.5 text-sm font-semibold text-ink hover:bg-panel">
+              How it works
+            </a>
           </div>
-        ))}
-      </div>
-    </section>
-  )
-}
+        </Reveal>
 
-const checks = [
-  { icon: IdCard, title: 'Document check', body: 'Reads the front and back of the national ID card and checks the two agree. Blurry or glare-covered photos are sent back for a retake.' },
-  { icon: ScanFace, title: 'Face match', body: 'Compares the selfie with the photo on the card and scores how closely they match.' },
-  { icon: Fingerprint, title: 'Liveness', body: 'A short head-turn or blink challenge, checked on our servers, so a printed photo or a screen replay does not pass.' },
-]
-
-const extras = [
-  { icon: Smartphone, title: 'Hosted capture link', body: 'Guides customers on their own phone. Nothing to build for the camera.' },
-  { icon: Webhook, title: 'Webhooks', body: 'Signed notifications the moment a decision is ready.' },
-  { icon: Zap, title: 'Test mode', body: 'A full sandbox from the minute you sign up, free.' },
-]
-
-function Product() {
-  return (
-    <section id="product" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-20 sm:px-6">
-      <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
-        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Three checks.
-          <br />
-          One decision.
-        </h2>
-        <p className="max-w-xl text-muted">
-          Every verification runs the same checks and comes back as approve, review, retake or reject, with plain reasons. You decide what to do with each outcome; we never hide behind a single score.
-        </p>
-      </div>
-      <div className="mt-10 grid gap-4 md:grid-cols-3">
-        {checks.map((c, i) => (
-          <article key={c.title} className={cx('rounded-[28px] p-6', i === 0 ? 'bg-ink text-panel' : 'bg-panel')}>
-            <span className={cx('grid size-12 place-items-center rounded-2xl', i === 0 ? 'bg-brand-gradient text-white' : 'bg-brand-50 text-brand-600 dark:bg-brand-500/15')}>
-              <c.icon className="size-6" />
-            </span>
-            <h3 className="mt-6 text-lg font-bold">{c.title}</h3>
-            <p className={cx('mt-2 text-sm leading-relaxed', i === 0 ? 'text-panel/70' : 'text-muted')}>{c.body}</p>
-          </article>
-        ))}
-      </div>
-      <div className="mt-4 grid gap-4 sm:grid-cols-3">
-        {extras.map((e) => (
-          <div key={e.title} className="flex gap-3 rounded-3xl bg-panel p-5">
-            <e.icon className="size-5 shrink-0 text-brand-500" />
-            <div>
-              <h3 className="text-sm font-bold">{e.title}</h3>
-              <p className="mt-1 text-sm text-muted">{e.body}</p>
+        <Reveal effect="right" delay={150} className="relative">
+          <div className="relative ml-auto aspect-[5/6] w-full max-w-[460px]">
+            <Photo src={images.hero} alt="A customer verifying their ID on a phone" label="Hero photo" size="1200 × 1400" rounded="rounded-[40px]" />
+            {/* Phone over the photo */}
+            <div className="float-slower absolute bottom-6 -left-4 sm:-left-12">
+              <Phone />
             </div>
+            <Reveal effect="pop" delay={600} className="absolute top-8 -right-2 sm:-right-6">
+              <div className="float-slow flex items-center gap-2 rounded-2xl bg-white p-3 shadow-[var(--shadow-float)]">
+                <span className="grid size-9 place-items-center rounded-full bg-[#e7f6ec] text-[#17a34a]">
+                  <ScanFace className="size-4" />
+                </span>
+                <div>
+                  <p className="text-[11px] text-[#6f7178]">Face match</p>
+                  <p className="text-sm font-bold text-[#141416]">Strong match</p>
+                </div>
+              </div>
+            </Reveal>
+            <Reveal effect="pop" delay={850} className="absolute -right-2 bottom-24 sm:-right-8">
+              <div className="float-slower flex items-center gap-3 rounded-2xl bg-[#141416] p-3 text-white shadow-[var(--shadow-float)]">
+                <div>
+                  <p className="text-[11px] text-white/60">Decision</p>
+                  <p className="text-sm font-bold">Approved · 1.1 s</p>
+                </div>
+                <span className="grid size-8 place-items-center rounded-full bg-[#17a34a]">
+                  <BadgeCheck className="size-4" />
+                </span>
+              </div>
+            </Reveal>
           </div>
-        ))}
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+function StatsBand() {
+  const stats = [
+    { node: <CountUp to={1.1} decimals={1} suffix=" s" />, label: 'Typical decision after capture' },
+    { node: <CountUp to={3} />, label: 'Checks in every verification' },
+    { node: <CountUp to={30} />, label: 'Days, then images are deleted' },
+    { node: <>24/7</>, label: 'Automated decisions' },
+  ]
+  return (
+    <section className="relative z-10 mx-auto -mt-6 max-w-6xl px-4 sm:-mt-10 sm:px-6">
+      <Reveal effect="up">
+        <div className="bg-brand-gradient grid grid-cols-2 gap-x-6 gap-y-8 rounded-[32px] px-6 py-9 text-white shadow-[0_24px_50px_-24px_rgb(242_100_48/0.9)] sm:px-12 lg:grid-cols-4">
+          {stats.map((s, i) => (
+            <div key={s.label} className={'flex items-center gap-3 ' + (i > 0 ? 'lg:border-l lg:border-white/25 lg:pl-8' : '')}>
+              <span className="shrink-0 text-4xl font-extrabold tracking-tight whitespace-nowrap tabular-nums sm:text-5xl">{s.node}</span>
+              <span className="max-w-[8rem] text-xs leading-snug text-white/85">{s.label}</span>
+            </div>
+          ))}
+        </div>
+      </Reveal>
+    </section>
+  )
+}
+
+const features = [
+  { key: 'feature1', title: 'ID card check', body: 'Reads both sides of the national ID card and checks they agree.', icon: ShieldCheck },
+  { key: 'feature2', title: 'Face match', body: 'Compares the selfie with the photo on the card.', icon: ScanFace },
+  { key: 'feature3', title: 'Liveness', body: 'A short head turn or blink proves a real person is there.', icon: Fingerprint },
+]
+
+function Features() {
+  return (
+    <section id="features" className="mx-auto max-w-6xl scroll-mt-24 px-4 pt-24 pb-10 sm:px-6">
+      <div className="grid gap-12 lg:grid-cols-[0.8fr_2fr] lg:items-start">
+        <Reveal effect="left">
+          <span className="text-2xl text-brand-500" aria-hidden="true">
+            ✦
+          </span>
+          <h2 className="mt-2 text-3xl leading-tight font-extrabold tracking-tight sm:text-4xl">
+            That&apos;s the way
+            <br />
+            to verify!
+          </h2>
+          <p className="mt-4 text-sm text-muted">Three checks, one clear decision.</p>
+        </Reveal>
+        <div className="grid gap-8 sm:grid-cols-3">
+          {features.map((f, i) => (
+            <Reveal key={f.title} delay={i * 150}>
+              <div className="relative size-20">
+                <Photo src={images[f.key]} alt={f.title} label="" size="400 × 400" rounded="rounded-3xl" />
+                <span className="bg-brand-gradient absolute -right-2 -bottom-2 grid size-8 place-items-center rounded-full text-white ring-4 ring-page">
+                  <f.icon className="size-4" />
+                </span>
+              </div>
+              <h3 className="mt-5 text-lg font-bold">{f.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{f.body}</p>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Pin positions on the map (percent of the map box), roughly over Sierra Leone's regions.
+const pins = [
+  { top: '58%', left: '22%', label: 'Freetown', avatar: 'avatar1' },
+  { top: '38%', left: '48%', label: 'Makeni', avatar: 'avatar2' },
+  { top: '64%', left: '62%', label: 'Bo', avatar: 'avatar3' },
+  { top: '40%', left: '78%', label: 'Kenema', avatar: undefined },
+  { top: '22%', left: '36%', label: 'Port Loko', avatar: undefined },
+]
+
+function Coverage() {
+  return (
+    <section id="coverage" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-20 sm:px-6">
+      <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+        <Reveal effect="zoom" className="relative">
+          <div className="relative aspect-[16/10] w-full">
+            <Photo src={images.map} alt="Map of Sierra Leone" label="Map of Sierra Leone" size="1600 × 1000" rounded="rounded-[36px]" />
+            {pins.map((p, i) => (
+              <div key={p.label} className="absolute" style={{ top: p.top, left: p.left }}>
+                <Reveal effect="pop" delay={300 + i * 180}>
+                  <div className="-translate-x-1/2 -translate-y-full">
+                    <div className="flex flex-col items-center">
+                      <div className="relative">
+                        <span className="absolute inset-0 animate-ping rounded-full bg-brand-500/40" aria-hidden="true" />
+                        <div className="relative size-11 overflow-hidden rounded-full border-[3px] border-white bg-tile shadow-lg">
+                          {p.avatar && images[p.avatar] ? <img src={images[p.avatar]} alt="" className="h-full w-full object-cover" /> : <span className="bg-brand-gradient grid h-full w-full place-items-center text-white"><BadgeCheck className="size-4" /></span>}
+                        </div>
+                      </div>
+                      <span className="mt-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-[#141416] shadow">{p.label}</span>
+                    </div>
+                  </div>
+                </Reveal>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+        <Reveal effect="right">
+          <p className="text-sm font-semibold text-brand-500">Coverage</p>
+          <h2 className="mt-2 text-3xl leading-tight font-extrabold tracking-tight sm:text-4xl">Verify customers anywhere in Sierra Leone.</h2>
+          <p className="mt-4 text-muted">All a customer needs is their national ID card and a phone with a camera. No branch visit, no app to install.</p>
+          <ul className="mt-6 space-y-3">
+            {['Works on low-end Android phones', 'Recovers from weak connections', 'Guides the customer at every step'].map((t) => (
+              <li key={t} className="flex items-center gap-3 text-sm font-medium">
+                <span className="grid size-6 place-items-center rounded-full bg-brand-500 text-white">
+                  <Check className="size-3.5" />
+                </span>
+                {t}
+              </li>
+            ))}
+          </ul>
+        </Reveal>
       </div>
     </section>
   )
 }
 
 const steps = [
-  { n: '01', title: 'Create a session', body: 'One API call with your key. You get a capture link for your customer.' },
-  { n: '02', title: 'Customer captures', body: 'They open the link on their phone: consent, ID front and back, a short selfie challenge.' },
-  { n: '03', title: 'Get the decision', body: 'A signed webhook tells you it is ready; fetch the outcome and reasons.' },
+  { title: 'Create a session', body: 'One API call. You get a link for your customer.' },
+  { title: 'Customer captures', body: 'ID front and back, then a short selfie challenge on their phone.' },
+  { title: 'Get the decision', body: 'A signed webhook tells you; fetch the outcome and reasons.' },
 ]
 
 function HowItWorks() {
   return (
-    <section id="how" className="scroll-mt-24 bg-panel py-20">
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:items-center">
+    <section id="how" className="scroll-mt-24 bg-panel py-24">
+      <div className="mx-auto grid max-w-6xl gap-14 px-4 sm:px-6 lg:grid-cols-2 lg:items-center">
+        <Reveal effect="left" className="relative mx-auto w-full max-w-[420px]">
+          <div className="aspect-[5/6] w-full">
+            <Photo src={images.app} alt="The capture app in use" label="App photo" size="1000 × 1200" rounded="rounded-[40px]" />
+          </div>
+          <div className="float-slow absolute -right-3 -bottom-8 sm:-right-10">
+            <Phone />
+          </div>
+        </Reveal>
         <div>
-          <p className="text-sm font-semibold text-brand-500">How it works</p>
-          <h2 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Live in an afternoon.</h2>
-          <ol className="mt-8 space-y-3">
-            {steps.map((s) => (
-              <li key={s.n} className="flex gap-4 rounded-3xl bg-tile p-5">
-                <span className="text-sm font-extrabold text-brand-500">{s.n}</span>
+          <Reveal>
+            <p className="text-sm font-semibold text-brand-500">How it works</p>
+            <h2 className="mt-2 text-3xl leading-tight font-extrabold tracking-tight sm:text-4xl">Live in an afternoon.</h2>
+          </Reveal>
+          <ol className="mt-8 space-y-4">
+            {steps.map((s, i) => (
+              <Reveal as="li" key={s.title} delay={i * 150} className="flex gap-5 rounded-3xl bg-tile p-5">
+                <span className="bg-brand-gradient grid size-10 shrink-0 place-items-center rounded-full text-sm font-bold text-white">{i + 1}</span>
                 <div>
                   <h3 className="font-bold">{s.title}</h3>
                   <p className="mt-1 text-sm text-muted">{s.body}</p>
                 </div>
-              </li>
+              </Reveal>
             ))}
           </ol>
+          <Reveal delay={500} className="mt-6 flex flex-wrap gap-2">
+            {[
+              { icon: Smartphone, t: 'Hosted capture link' },
+              { icon: Webhook, t: 'Signed webhooks' },
+              { icon: Lock, t: 'Free test mode' },
+            ].map(({ icon: Icon, t }) => (
+              <span key={t} className="inline-flex items-center gap-2 rounded-full bg-tile px-3.5 py-2 text-xs font-semibold">
+                <Icon className="size-3.5 text-brand-500" />
+                {t}
+              </span>
+            ))}
+          </Reveal>
         </div>
-        <div className="overflow-hidden rounded-[28px] bg-[#141416] text-[13px] text-white shadow-[var(--shadow-float)]">
-          <div className="flex items-center gap-1.5 border-b border-white/10 px-5 py-3">
-            <span className="size-2.5 rounded-full bg-[#ff5f57]" />
-            <span className="size-2.5 rounded-full bg-[#febc2e]" />
-            <span className="size-2.5 rounded-full bg-[#28c840]" />
-            <span className="ml-3 text-xs text-white/50">Create a session</span>
-          </div>
-          <pre className="overflow-x-auto p-5 leading-relaxed">
-            <code>
-              <span className="text-[#ff9b72]">curl</span> -X POST https://assay.geneline-x.net/v1/sessions \{'\n'}
-              {'  '}-H <span className="text-[#9fe3b4]">"Authorization: Bearer sk_test_…"</span> \{'\n'}
-              {'  '}-H <span className="text-[#9fe3b4]">"Idempotency-Key: 4f1c…"</span> \{'\n'}
-              {'  '}-d <span className="text-[#9fe3b4]">'{'{'}"customer_reference":"cust_1042"{'}'}'</span>
-              {'\n\n'}
-              <span className="text-white/45"># 201 Created</span>
-              {'\n'}
-              {'{'}
-              {'\n  '}"session": {'{'} "id": <span className="text-[#9fe3b4]">"ses_3c1d…"</span>, "status": <span className="text-[#9fe3b4]">"created"</span> {'}'},
-              {'\n  '}"capture_url": <span className="text-[#9fe3b4]">"https://assay.geneline-x.net/#t=lnk_…"</span>
-              {'\n'}
-              {'}'}
-            </code>
-          </pre>
-        </div>
+      </div>
+    </section>
+  )
+}
+
+const testimonials = [
+  { avatar: 'avatar1', name: 'Customer name', role: 'Role, Company' },
+  { avatar: 'avatar2', name: 'Customer name', role: 'Role, Company' },
+  { avatar: 'avatar3', name: 'Customer name', role: 'Role, Company' },
+]
+
+function Testimonials() {
+  return (
+    <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+      <Reveal className="text-center">
+        <span className="inline-block rounded-full bg-ink px-3 py-1 text-xs font-semibold text-panel">Our customers</span>
+        <h2 className="mx-auto mt-4 max-w-xl text-3xl leading-tight font-extrabold tracking-tight sm:text-4xl">Satisfied customers are our best ads.</h2>
+      </Reveal>
+      <div className="mt-12 grid gap-4 md:grid-cols-3">
+        {testimonials.map((t, i) => (
+          <Reveal key={i} delay={i * 150} className="rounded-[28px] bg-panel p-6">
+            <Quote className="size-7 fill-brand-500 text-brand-500" />
+            <p className="mt-4 text-sm leading-relaxed text-muted">Add a short quote from a customer here: what they verify with Assay and what changed for them.</p>
+            <div className="mt-6 flex items-center gap-3">
+              <div className="size-11 shrink-0">
+                <Photo src={images[t.avatar]} alt={t.name} label="" size="" rounded="rounded-full" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold">{t.name}</p>
+                <p className="text-xs text-muted">{t.role}</p>
+              </div>
+              <div className="flex text-brand-500" aria-label="5 stars">
+                {Array.from({ length: 5 }, (_, s) => (
+                  <Star key={s} className="size-3.5 fill-current" />
+                ))}
+              </div>
+            </div>
+          </Reveal>
+        ))}
       </div>
     </section>
   )
@@ -326,98 +371,38 @@ function HowItWorks() {
 
 function Pricing() {
   return (
-    <section id="pricing" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-20 sm:px-6">
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
-        <div className="rounded-[32px] bg-ink p-8 text-panel sm:p-10">
-          <p className="text-sm font-semibold text-brand-300">Pricing</p>
-          <h2 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Pay only for decisions.</h2>
-          <p className="mt-4 max-w-md text-panel/70">
-            One price per completed verification, shown in your dashboard before you go live. Top up in Leones with Orange Money or Afrimoney; your balance goes down as you verify.
-          </p>
-          <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-            {['Test mode is free', 'Retakes in a session are free', 'Abandoned sessions are free', 'Outages on our side are free'].map((t) => (
-              <li key={t} className="flex items-center gap-2 text-sm">
-                <span className="grid size-5 place-items-center rounded-full bg-brand-500 text-white">
-                  <Check className="size-3" />
-                </span>
-                {t}
-              </li>
-            ))}
-          </ul>
-          <Link to="/signup" className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-[#141416] hover:bg-zinc-200">
-            Create an account
-            <ArrowRight className="size-4" />
-          </Link>
-        </div>
-        <div className="grid gap-4">
-          {[
-            { icon: Smartphone, title: 'Mobile money top-ups', body: 'Orange Money and Afrimoney, receipts for every payment.' },
-            { icon: Timer, title: 'Spending cap', body: 'Set a monthly limit so a busy month never surprises you.' },
-            { icon: Building2, title: 'Invoices for larger teams', body: 'Monthly invoicing for approved enterprise partners.' },
-          ].map((c) => (
-            <div key={c.title} className="flex gap-4 rounded-[28px] bg-panel p-6">
-              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-500/15">
-                <c.icon className="size-5" />
-              </span>
-              <div>
-                <h3 className="font-bold">{c.title}</h3>
-                <p className="mt-1 text-sm text-muted">{c.body}</p>
-              </div>
+    <section id="pricing" className="mx-auto max-w-6xl scroll-mt-24 px-4 pb-24 sm:px-6">
+      <Reveal effect="zoom">
+        <div className="bg-brand-gradient relative overflow-hidden rounded-[40px] px-6 py-14 text-white sm:px-14">
+          <div className="absolute -top-24 -right-16 size-72 rounded-full bg-white/10" aria-hidden="true" />
+          <div className="absolute -bottom-28 -left-10 size-80 rounded-full bg-black/10" aria-hidden="true" />
+          <div className="relative grid gap-10 lg:grid-cols-2 lg:items-center">
+            <div>
+              <h2 className="text-3xl leading-tight font-extrabold tracking-tight sm:text-5xl">Pay only for decisions.</h2>
+              <p className="mt-4 max-w-md text-white/85">Top up in Leones with Orange Money or Afrimoney. Test mode is free, and you only pay when a verification is completed.</p>
+              <Link to="/signup" className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#141416] px-6 py-3.5 text-sm font-semibold text-white hover:bg-black">
+                Start free
+                <ArrowRight className="size-4" />
+              </Link>
             </div>
-          ))}
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {[
+                { icon: Check, t: 'Free test mode' },
+                { icon: Check, t: 'Free retakes' },
+                { icon: Trash2, t: 'Images deleted after 30 days' },
+                { icon: ShieldCheck, t: 'No ID data in your dashboard' },
+              ].map(({ icon: Icon, t }) => (
+                <li key={t} className="flex items-center gap-3 rounded-2xl bg-white/12 px-4 py-3.5 text-sm font-medium backdrop-blur-sm">
+                  <span className="grid size-7 place-items-center rounded-full bg-white text-brand-600">
+                    <Icon className="size-3.5" />
+                  </span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </div>
-    </section>
-  )
-}
-
-const security = [
-  { icon: Lock, title: 'Encrypted end to end', body: 'Images are encrypted with keys held in a separate key service, and every image read is logged.' },
-  { icon: Trash2, title: 'Deleted after 30 days', body: 'ID photos and selfies are removed automatically. Decisions and reasons stay for your records.' },
-  { icon: ShieldCheck, title: 'Your dashboard holds no ID data', body: 'This portal shows counts, outcomes and billing only. Results go straight to your own systems.' },
-  { icon: Landmark, title: 'Reviewed partners only', body: 'Live keys are issued after a business check, so the service is not open to anyone with a stolen ID.' },
-]
-
-function Security() {
-  return (
-    <section id="security" className="scroll-mt-24 bg-panel py-20">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="max-w-2xl">
-          <p className="text-sm font-semibold text-brand-500">Security</p>
-          <h2 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Built for identity data from day one.</h2>
-        </div>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {security.map((s) => (
-            <div key={s.title} className="rounded-[28px] bg-tile p-6">
-              <s.icon className="size-6 text-brand-500" />
-              <h3 className="mt-5 font-bold">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{s.body}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function Cta() {
-  return (
-    <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-      <div className="bg-brand-gradient relative overflow-hidden rounded-[36px] px-6 py-14 text-center text-white sm:px-12">
-        <div className="absolute -top-20 -right-16 size-64 rounded-full bg-white/10" aria-hidden="true" />
-        <div className="absolute -bottom-24 -left-10 size-72 rounded-full bg-black/10" aria-hidden="true" />
-        <h2 className="relative mx-auto max-w-2xl text-3xl font-extrabold tracking-tight sm:text-4xl">Make your first test verification today.</h2>
-        <p className="relative mx-auto mt-4 max-w-lg text-white/85">Sign up, copy a test key, and send yourself a capture link. It takes about ten minutes.</p>
-        <div className="relative mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link to="/signup" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#141416] px-6 py-3.5 text-sm font-semibold text-white hover:bg-black">
-            Get started free
-            <ArrowRight className="size-4" />
-          </Link>
-          <Link to="/login" className="inline-flex items-center justify-center rounded-full bg-white/15 px-6 py-3.5 text-sm font-semibold text-white hover:bg-white/25">
-            Log in
-          </Link>
-        </div>
-      </div>
+      </Reveal>
     </section>
   )
 }
@@ -431,10 +416,14 @@ function Footer() {
           <p className="mt-3 text-sm text-muted">ID verification for Sierra Leone. A Geneline-X product.</p>
         </div>
         <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted" aria-label="Footer">
-          <a href="#product" className="hover:text-ink">Product</a>
-          <a href="#pricing" className="hover:text-ink">Pricing</a>
-          <a href="#security" className="hover:text-ink">Security</a>
-          <Link to="/login" className="hover:text-ink">Log in</Link>
+          {nav.map((n) => (
+            <a key={n.href} href={n.href} className="hover:text-ink">
+              {n.label}
+            </a>
+          ))}
+          <Link to="/login" className="hover:text-ink">
+            Log in
+          </Link>
         </nav>
       </div>
       <p className="mx-auto max-w-6xl px-4 pb-8 text-xs text-muted sm:px-6">© {new Date().getFullYear()} Geneline-X. All rights reserved.</p>
@@ -444,16 +433,16 @@ function Footer() {
 
 export default function Landing() {
   return (
-    <div className="min-h-dvh overflow-x-hidden">
+    <div className="min-h-dvh overflow-x-hidden scroll-smooth">
       <Header />
       <main>
         <Hero />
-        <FactsBand />
-        <Product />
+        <StatsBand />
+        <Features />
+        <Coverage />
         <HowItWorks />
+        <Testimonials />
         <Pricing />
-        <Security />
-        <Cta />
       </main>
       <Footer />
     </div>

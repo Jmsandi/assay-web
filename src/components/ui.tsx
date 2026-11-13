@@ -48,7 +48,7 @@ export function Button({
 }
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
-  return <section className={cx('rounded-[var(--radius-card)] bg-panel p-5', className)}>{children}</section>
+  return <section className={cx('rounded-[var(--radius-card)] bg-panel p-6', className)}>{children}</section>
 }
 
 export function Change({ pct, onBrand = false }: { pct: number; onBrand?: boolean }) {
