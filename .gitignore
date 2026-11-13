@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+
+# Internal: kept out of this public repository
+docs/PRD.md
+.claude/
