@@ -223,13 +223,14 @@ function Features() {
   )
 }
 
-// Pin positions on the map (percent of the map box), roughly over Sierra Leone's regions.
+// Pin positions (percent of the map box) for public/images/map.webp. Each pin's tip
+// sits on the town; adjust these if the map image changes.
 const pins = [
-  { top: '58%', left: '22%', label: 'Freetown', avatar: 'avatar1' },
-  { top: '38%', left: '48%', label: 'Makeni', avatar: 'avatar2' },
-  { top: '64%', left: '62%', label: 'Bo', avatar: 'avatar3' },
-  { top: '40%', left: '78%', label: 'Kenema', avatar: undefined },
-  { top: '22%', left: '36%', label: 'Port Loko', avatar: undefined },
+  { top: '63%', left: '29%', label: 'Freetown', avatar: 'avatar1' },
+  { top: '38%', left: '35%', label: 'Port Loko', avatar: undefined },
+  { top: '38%', left: '50%', label: 'Makeni', avatar: 'avatar2' },
+  { top: '66%', left: '52%', label: 'Bo', avatar: 'avatar3' },
+  { top: '61%', left: '64%', label: 'Kenema', avatar: undefined },
 ]
 
 function Coverage() {
