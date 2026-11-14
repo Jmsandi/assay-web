@@ -11,6 +11,7 @@
 package api
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -27,6 +28,7 @@ import (
 	"time"
 
 	"github.com/Jmsandi/assay-web/server/internal/auth"
+	"github.com/Jmsandi/assay-web/server/internal/billing"
 	"github.com/Jmsandi/assay-web/server/internal/core"
 	"github.com/Jmsandi/assay-web/server/internal/store"
 	"github.com/google/uuid"
@@ -47,8 +49,14 @@ type Server struct {
 	// SecureCookies is false only for local development over plain http.
 	SecureCookies bool
 	Now           func() time.Time
-	limiter       *limiter
-	once          sync.Once
+	// Billing (optional in tests): the wallet, the payment provider, the price per
+	// billable verification, and the suspension check run after a top-up.
+	Billing    BillingStore
+	Provider   billing.Provider
+	PriceCents int64
+	Reconcile  func(ctx context.Context, orgID uuid.UUID) error
+	limiter    *limiter
+	once       sync.Once
 }
 
 func (s *Server) now() time.Time {
@@ -69,6 +77,7 @@ func (s *Server) Routes(mux *http.ServeMux) {
 	mux.HandleFunc("DELETE /api/keys/{id}", s.guard(s.member(s.revokeKey)))
 	mux.HandleFunc("GET /api/usage", s.member(s.usage))
 	mux.HandleFunc("GET /api/activity", s.member(s.activity))
+	s.billingRoutes(mux)
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, _ *http.Request) { fail(w, 404, "not_found") })
 }
 
@@ -274,7 +283,7 @@ func (s *Server) logout(w http.ResponseWriter, r *http.Request) {
 func (s *Server) me(w http.ResponseWriter, _ *http.Request, m member) {
 	writeJSON(w, 200, map[string]any{
 		"user":         map[string]string{"name": m.User.Name, "email": m.User.Email},
-		"organisation": map[string]string{"name": m.Org.Name, "live_status": m.Org.LiveStatus, "role": m.Role},
+		"organisation": map[string]any{"name": m.Org.Name, "live_status": m.Org.LiveStatus, "role": m.Role, "live_suspended": m.Org.LiveSuspended},
 	})
 }
 

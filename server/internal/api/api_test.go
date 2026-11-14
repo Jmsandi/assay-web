@@ -4,12 +4,14 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/Jmsandi/assay-web/server/internal/auth"
+	"github.com/Jmsandi/assay-web/server/internal/billing"
 	"github.com/Jmsandi/assay-web/server/internal/core"
 	"github.com/Jmsandi/assay-web/server/internal/store"
 	"github.com/google/uuid"
@@ -346,4 +348,123 @@ func TestPasswords(t *testing.T) {
 	if h == h2 {
 		t.Fatal("hashes must be salted")
 	}
+}
+
+// ---- billing ----
+
+type memBilling struct {
+	mu       sync.Mutex
+	balance  map[uuid.UUID]int64
+	payments map[string]billing.Payment // by provider ref
+}
+
+func (b *memBilling) Balance(_ context.Context, id uuid.UUID) (int64, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.balance[id], nil
+}
+func (b *memBilling) Entries(context.Context, uuid.UUID, int) ([]billing.Entry, error) {
+	return []billing.Entry{}, nil
+}
+func (b *memBilling) Payments(context.Context, uuid.UUID, int) ([]billing.Payment, error) {
+	return []billing.Payment{}, nil
+}
+func (b *memBilling) CreatePayment(_ context.Context, p billing.Payment, _ uuid.UUID) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.payments["pending:"+p.ID.String()] = p
+	return nil
+}
+func (b *memBilling) SetProviderRef(_ context.Context, id uuid.UUID, ref string) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	p := b.payments["pending:"+id.String()]
+	p.ProviderRef, p.Status = ref, "pending"
+	b.payments[ref] = p
+	return nil
+}
+func (b *memBilling) CompletePayment(_ context.Context, _, ref string, cents int64) (uuid.UUID, bool, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	p, ok := b.payments[ref]
+	if !ok {
+		return uuid.Nil, false, billing.ErrNotFound
+	}
+	if p.Status == "completed" {
+		return p.OrgID, false, nil
+	}
+	p.Status = "completed"
+	b.payments[ref] = p
+	b.balance[p.OrgID] += cents
+	return p.OrgID, true, nil
+}
+func (b *memBilling) FailPayment(context.Context, string, string, string) error { return nil }
+
+// fakeProvider accepts a webhook naming a reference and amount (signature checking
+// is the real provider's job).
+type fakeProvider struct{}
+
+func (fakeProvider) Name() string { return "fake" }
+func (fakeProvider) StartTopUp(_ context.Context, p billing.Payment, _ string) (string, string, error) {
+	return "ref_" + p.ID.String()[:8], "https://pay.example.test/checkout", nil
+}
+func (fakeProvider) Confirm(_ context.Context, r *http.Request) (billing.Confirmation, error) {
+	if r.Header.Get("X-Test-Signature") != "valid" {
+		return billing.Confirmation{}, billing.ErrNotFound
+	}
+	amount, _ := strconv.ParseInt(r.URL.Query().Get("amount"), 10, 64)
+	return billing.Confirmation{ProviderRef: r.URL.Query().Get("ref"), Status: "completed", AmountCents: amount}, nil
+}
+
+func TestBillingSummaryAndTopUps(t *testing.T) {
+	c, st, _ := newServer(t)
+	mb := &memBilling{balance: map[uuid.UUID]int64{}, payments: map[string]billing.Payment{}}
+	reconciled := 0
+	mux := http.NewServeMux()
+	(&Server{Store: st, Core: &fakeCore{partners: map[string]bool{}, keys: map[string][]core.Key{}}, Origin: origin, SecureCookies: true,
+		Billing: mb, Provider: billing.None{}, PriceCents: 2_500,
+		Reconcile: func(context.Context, uuid.UUID) error { reconciled++; return nil }}).Routes(mux)
+	c.mux = mux
+	c.call("POST", "/api/auth/signup", signup)
+	expect(t, c.call("GET", "/api/billing", ""), 200, `"payments_enabled":false`)
+	expect(t, c.call("POST", "/api/billing/topups", `{"amount_cents":500000,"method":"orange_money"}`), 503, "payments_not_configured")
+
+	// With a provider: start a top-up, then the provider confirms it (twice).
+	mux = http.NewServeMux()
+	(&Server{Store: st, Core: &fakeCore{partners: map[string]bool{}, keys: map[string][]core.Key{}}, Origin: origin, SecureCookies: true,
+		Billing: mb, Provider: fakeProvider{}, PriceCents: 2_500,
+		Reconcile: func(context.Context, uuid.UUID) error { reconciled++; return nil }}).Routes(mux)
+	c.mux = mux
+	expect(t, c.call("POST", "/api/billing/topups", `{"amount_cents":5,"method":"orange_money"}`), 400, "invalid_request")
+	w := c.call("POST", "/api/billing/topups", `{"amount_cents":500000,"method":"orange_money"}`)
+	expect(t, w, 201, "https://pay.example.test/checkout")
+	var ref string
+	for k, p := range mb.payments {
+		if !strings.HasPrefix(k, "pending:") {
+			ref = p.ProviderRef
+		}
+	}
+	webhook := func(sig string, amount int) int {
+		req := httptest.NewRequest("POST", "/api/payments/webhook?ref="+ref+"&amount="+strconv.Itoa(amount), nil)
+		req.Header.Set("X-Test-Signature", sig)
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+		return rec.Code
+	}
+	if code := webhook("forged", 500000); code != 400 {
+		t.Fatalf("unverified webhook: %d", code)
+	}
+	if code := webhook("valid", 500000); code != 200 {
+		t.Fatalf("webhook: %d", code)
+	}
+	if code := webhook("valid", 500000); code != 200 {
+		t.Fatalf("repeat webhook: %d", code)
+	}
+	expect(t, c.call("GET", "/api/billing", ""), 200, `"balance_cents":500000`)
+	if reconciled != 1 {
+		t.Fatalf("suspension re-checked %d times, want once (credited once)", reconciled)
+	}
+	expect(t, c.call("GET", "/api/billing", ""), 200, `"verifications_remaining":200`)
+	st.set("aminata@kora.example", "developer", "")
+	expect(t, c.call("POST", "/api/billing/topups", `{"amount_cents":500000,"method":"afrimoney"}`), 403, "forbidden")
 }

@@ -3,6 +3,9 @@
 //	portal serve     run the server (migrates first)
 //	portal migrate   apply database migrations and exit
 //	portal health    exit 0 if the local server answers /healthz (container check)
+//	portal credit <organisation id> <amount in cents> <note>
+//	                 operator credit (negative: a correction); lifts a suspension
+//	PRICE_PER_VERIFICATION_CENTS  charged per billable live verification (default 0)
 //
 // Configuration (environment):
 //
@@ -23,13 +26,16 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
 	"github.com/Jmsandi/assay-web/server/internal/api"
+	"github.com/Jmsandi/assay-web/server/internal/billing"
 	"github.com/Jmsandi/assay-web/server/internal/core"
 	"github.com/Jmsandi/assay-web/server/internal/store"
 	"github.com/Jmsandi/assay-web/server/internal/web"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -60,6 +66,15 @@ func main() {
 		log.Print("migrations applied")
 		return
 	}
+	price, err := strconv.ParseInt(env("PRICE_PER_VERIFICATION_CENTS", "0"), 10, 64)
+	if err != nil || price < 0 {
+		log.Fatal("PRICE_PER_VERIFICATION_CENTS must be a whole number of cents")
+	}
+	ledger := billing.Postgres{Pool: pool}
+	if command == "credit" {
+		credit(ctx, ledger, price)
+		return
+	}
 	if command != "serve" {
 		log.Fatal("unknown command")
 	}
@@ -72,12 +87,19 @@ func main() {
 	if len(token) < 32 {
 		log.Fatal("CORE_ADMIN_TOKEN must be at least 32 characters")
 	}
+	coreAPI := core.New(mustEnv("CORE_ADMIN_URL"), token)
+	worker := billing.Worker{Ledger: ledger, Core: coreAPI, PriceCents: price}
 	srv := &api.Server{
 		Store:         store.Postgres{Pool: pool},
-		Core:          core.New(mustEnv("CORE_ADMIN_URL"), token),
+		Core:          coreAPI,
 		Origin:        origin,
 		SecureCookies: os.Getenv("INSECURE_COOKIES") != "true",
+		Billing:       ledger,
+		Provider:      billing.None{}, // Monime plugs in here once its API details arrive.
+		PriceCents:    price,
+		Reconcile:     worker.Reconcile,
 	}
+	go worker.Loop(ctx, 30*time.Second)
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		if pool.Ping(r.Context()) != nil {
@@ -124,4 +146,35 @@ func portOf(addr string) string {
 		}
 	}
 	return ":8090"
+}
+
+// credit adds an operator credit (or a negative correction) and re-checks suspension.
+func credit(ctx context.Context, ledger billing.Postgres, price int64) {
+	if len(os.Args) != 5 {
+		log.Fatal("usage: portal credit <organisation id> <amount in cents> <note>")
+	}
+	org, err := uuid.Parse(os.Args[2])
+	if err != nil {
+		log.Fatal("invalid organisation id")
+	}
+	amount, err := strconv.ParseInt(os.Args[3], 10, 64)
+	if err != nil || amount == 0 {
+		log.Fatal("invalid amount")
+	}
+	if _, err = ledger.OrgByID(ctx, org); err != nil {
+		log.Fatal("organisation not found")
+	}
+	if err = ledger.Credit(ctx, org, "credit", amount, "Operator: "+os.Args[4], nil); err != nil {
+		log.Fatal(err)
+	}
+	token := os.Getenv("CORE_ADMIN_TOKEN")
+	if base := os.Getenv("CORE_ADMIN_URL"); base != "" && len(token) >= 32 {
+		w := billing.Worker{Ledger: ledger, Core: core.New(base, token), PriceCents: price}
+		if err = w.Reconcile(ctx, org); err != nil {
+			log.Printf("credited, but the suspension check failed: %v", err)
+			return
+		}
+	}
+	balance, _ := ledger.Balance(ctx, org)
+	log.Printf("credited %d cents; balance %d cents", amount, balance)
 }

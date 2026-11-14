@@ -30,11 +30,12 @@ type User struct {
 }
 
 type Organisation struct {
-	ID         uuid.UUID
-	Name       string
-	PartnerID  string
-	LiveStatus string
-	CreatedAt  time.Time
+	ID            uuid.UUID
+	Name          string
+	PartnerID     string
+	LiveStatus    string
+	LiveSuspended bool
+	CreatedAt     time.Time
 }
 
 type Membership struct {
@@ -106,7 +107,7 @@ func (p Postgres) user(ctx context.Context, q string, arg any) (User, error) {
 }
 
 func (p Postgres) Memberships(ctx context.Context, userID uuid.UUID) ([]Membership, error) {
-	rows, err := p.Pool.Query(ctx, `SELECT o.id,o.name,o.partner_id,o.live_status,o.created_at,m.role FROM memberships m JOIN organisations o ON o.id=m.organisation_id WHERE m.user_id=$1 ORDER BY o.created_at`, userID)
+	rows, err := p.Pool.Query(ctx, `SELECT o.id,o.name,o.partner_id,o.live_status,o.live_suspended,o.created_at,m.role FROM memberships m JOIN organisations o ON o.id=m.organisation_id WHERE m.user_id=$1 ORDER BY o.created_at`, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +115,7 @@ func (p Postgres) Memberships(ctx context.Context, userID uuid.UUID) ([]Membersh
 	var out []Membership
 	for rows.Next() {
 		var m Membership
-		if err = rows.Scan(&m.Organisation.ID, &m.Organisation.Name, &m.Organisation.PartnerID, &m.Organisation.LiveStatus, &m.Organisation.CreatedAt, &m.Role); err != nil {
+		if err = rows.Scan(&m.Organisation.ID, &m.Organisation.Name, &m.Organisation.PartnerID, &m.Organisation.LiveStatus, &m.Organisation.LiveSuspended, &m.Organisation.CreatedAt, &m.Role); err != nil {
 			return nil, err
 		}
 		out = append(out, m)
