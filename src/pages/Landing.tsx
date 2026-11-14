@@ -25,6 +25,7 @@ const nav = [
   { to: '/coverage', label: 'Coverage' },
   { to: '/how-it-works', label: 'How it works' },
   { to: '/pricing', label: 'Pricing' },
+  { to: '/docs', label: 'Docs' },
 ]
 
 export function MarketingHeader() {

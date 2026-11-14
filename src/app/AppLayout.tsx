@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
-import { Building2, ChevronDown, Gauge, KeyRound, LayoutGrid, LogOut, Moon, ScanFace, Settings, Shield, Sun, Wallet, Webhook } from 'lucide-react'
+import { BookOpen, Building2, ChevronDown, Gauge, KeyRound, LayoutGrid, LogOut, Moon, ScanFace, Settings, Shield, Sun, Wallet, Webhook } from 'lucide-react'
 import { Logo, useTheme } from '../components/ui'
 import { cx } from '../lib/format'
 import { roleLabel } from '../lib/api'
@@ -129,6 +129,9 @@ export default function AppLayout() {
               </RailButton>
             </div>
             <div className="mt-auto flex flex-col gap-1 rounded-full bg-panel p-1.5">
+              <Link to="/docs" title="Integration guide" aria-label="Integration guide" className="grid size-10 place-items-center rounded-full text-muted hover:bg-tile hover:text-ink">
+                <BookOpen className="size-[18px]" />
+              </Link>
               <RailButton label="Log out" onClick={logOut}>
                 <LogOut className="size-[18px]" />
               </RailButton>

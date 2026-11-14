@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import './index.css'
 import Landing from './pages/Landing'
+import Docs from './pages/Docs'
 import { CoveragePage, FaqPage, HowItWorksPage, PlatformPage, PricingPage } from './pages/MarketingPages'
 import { Login, Signup } from './pages/Auth'
 import AppLayout from './app/AppLayout'
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
   { path: '/how-it-works', element: <HowItWorksPage /> },
   { path: '/pricing', element: <PricingPage /> },
   { path: '/faq', element: <FaqPage /> },
+  { path: '/docs', element: <Docs /> },
   { path: '/login', element: <Login /> },
   { path: '/signup', element: <Signup /> },
   {
