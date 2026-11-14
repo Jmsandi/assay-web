@@ -83,7 +83,7 @@ export function RequireAuth({ staff = false, children }: { staff?: boolean; chil
   const { me, loading } = useSession()
   const location = useLocation()
   if (loading) return <FullPageSpinner />
-  if (!me) return <Navigate to={`/login?next=${encodeURIComponent(location.pathname + location.search)}`} replace />
+  if (!me) return <Navigate to={staff ? '/admin/login' : `/login?next=${encodeURIComponent(location.pathname + location.search)}`} replace />
   if (staff && !me.user.is_staff) return <Navigate to="/app" replace />
   return <>{children}</>
 }

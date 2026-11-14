@@ -61,20 +61,28 @@ function useNext() {
   return next.startsWith('/app') || next.startsWith('/admin') ? next : '/app'
 }
 
-export function Login() {
+/** `staff`: the Geneline staff sign-in at /admin/login, which only lets staff through. */
+export function Login({ staff = false }: { staff?: boolean }) {
   const navigate = useNavigate()
-  const next = useNext()
-  const { me, signIn } = useSession()
+  const userNext = useNext()
+  const next = staff ? '/admin' : userNext
+  const { me, signIn, signOut } = useSession()
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  if (me) return <Navigate to={next} replace />
+  if (me && (!staff || me.user.is_staff)) return <Navigate to={next} replace />
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const f = new FormData(e.currentTarget)
     setBusy(true)
     setError('')
     try {
-      await signIn('/api/auth/login', { email: String(f.get('email')).trim(), password: String(f.get('password')) })
+      const signed = await signIn('/api/auth/login', { email: String(f.get('email')).trim(), password: String(f.get('password')) })
+      if (staff && !signed.user.is_staff) {
+        await signOut()
+        setError('This account does not have staff access.')
+        setBusy(false)
+        return
+      }
       navigate(next, { replace: true })
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Try again.')
@@ -83,15 +91,21 @@ export function Login() {
   }
   return (
     <AuthLayout
-      title="Welcome back"
-      subtitle="Log in to manage your keys, usage and billing."
+      title={staff ? 'Staff sign in' : 'Welcome back'}
+      subtitle={staff ? 'Geneline-X staff only: review live access and manage balances.' : 'Log in to manage your keys, usage and billing.'}
       footer={
-        <>
-          New to Assay?{' '}
-          <Link to="/signup" className="font-semibold text-brand-600">
-            Create an account
+        staff ? (
+          <Link to="/login" className="font-semibold text-brand-600">
+            Customer log in
           </Link>
-        </>
+        ) : (
+          <>
+            New to Assay?{' '}
+            <Link to="/signup" className="font-semibold text-brand-600">
+              Create an account
+            </Link>
+          </>
+        )
       }
     >
       <form onSubmit={submit} className="space-y-4">
