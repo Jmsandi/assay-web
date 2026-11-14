@@ -1,9 +1,8 @@
 import { useEffect, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from 'react-router'
-import { ArrowDownRight, ArrowUpRight, X } from 'lucide-react'
+import { AlertTriangle, Loader2, X } from 'lucide-react'
 import { cx } from '../lib/format'
-import { outcomeLabel, type Outcome } from '../data/mock'
 
 export function Logo({ to = '/', invert = false }: { to?: string; invert?: boolean }) {
   return (
@@ -49,38 +48,6 @@ export function Button({
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
   return <section className={cx('rounded-[var(--radius-card)] bg-panel p-6', className)}>{children}</section>
-}
-
-export function Change({ pct, onBrand = false }: { pct: number; onBrand?: boolean }) {
-  const up = pct >= 0
-  return (
-    <span
-      className={cx(
-        'inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold',
-        onBrand ? 'bg-white/20 text-white' : up ? 'bg-ok-soft text-ok' : 'bg-bad-soft text-bad',
-      )}
-    >
-      {up ? <ArrowUpRight className="size-3" /> : <ArrowDownRight className="size-3" />}
-      {Math.abs(pct)}%
-    </span>
-  )
-}
-
-const outcomeDot: Record<Outcome, string> = {
-  approved: 'bg-ok',
-  review: 'bg-warn',
-  retake: 'bg-brand-500',
-  rejected: 'bg-bad',
-  processing: 'bg-muted',
-}
-
-export function OutcomeBadge({ outcome }: { outcome: Outcome }) {
-  return (
-    <span className="inline-flex items-center gap-2 text-sm text-ink">
-      <span className={cx('size-1.5 rounded-full', outcomeDot[outcome])} aria-hidden="true" />
-      {outcomeLabel[outcome]}
-    </span>
-  )
 }
 
 export function Pill({ tone = 'neutral', children }: { tone?: 'neutral' | 'ok' | 'warn' | 'bad' | 'brand'; children: ReactNode }) {
@@ -150,4 +117,63 @@ export function useTheme() {
     }
   }, [dark])
   return [dark, setDark] as const
+}
+
+export function PageHead({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
+  return (
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+        {subtitle && <p className="mt-1.5 max-w-2xl text-sm text-muted">{subtitle}</p>}
+      </div>
+      {action}
+    </div>
+  )
+}
+
+/** An error or notice line; `onRetry` adds a retry button. */
+export function Notice({ tone = 'bad', children, onRetry }: { tone?: 'bad' | 'warn' | 'ok' | 'neutral'; children: ReactNode; onRetry?: () => void }) {
+  const tones = { bad: 'bg-bad-soft text-bad', warn: 'bg-warn-soft text-[#7a5b00] dark:text-warn', ok: 'bg-ok-soft text-ok', neutral: 'bg-tile text-muted' }
+  return (
+    <div role={tone === 'bad' ? 'alert' : 'status'} className={cx('flex items-start gap-3 rounded-2xl px-4 py-3 text-sm', tones[tone])}>
+      {tone === 'bad' || tone === 'warn' ? <AlertTriangle className="mt-0.5 size-4 shrink-0" /> : null}
+      <div className="flex-1">{children}</div>
+      {onRetry && (
+        <button onClick={onRetry} className="shrink-0 font-semibold underline underline-offset-2">
+          Retry
+        </button>
+      )}
+    </div>
+  )
+}
+
+export function Loading({ label = 'Loading' }: { label?: string }) {
+  return (
+    <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted" role="status">
+      <Loader2 className="size-4 animate-spin" /> {label}
+    </div>
+  )
+}
+
+export function Empty({ children }: { children: ReactNode }) {
+  return <p className="py-10 text-center text-sm text-muted">{children}</p>
+}
+
+export function Segmented<T extends string>({ value, options, onChange, label }: { value: T; options: { value: T; label: string; disabled?: boolean }[]; onChange: (v: T) => void; label: string }) {
+  return (
+    <div className="inline-flex rounded-full bg-tile p-1" role="tablist" aria-label={label}>
+      {options.map((o) => (
+        <button
+          key={o.value}
+          role="tab"
+          aria-selected={value === o.value}
+          disabled={o.disabled}
+          onClick={() => onChange(o.value)}
+          className={cx('rounded-full px-4 py-1.5 text-sm font-medium transition disabled:opacity-40', value === o.value ? 'bg-panel text-ink shadow-sm' : 'text-muted hover:text-ink')}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  )
 }

@@ -61,6 +61,94 @@ body {
   background-image: linear-gradient(140deg, #ff8a4c 0%, #f26430 45%, #e2481b 100%);
 }
 
+.hero-surface {
+  background:
+    radial-gradient(ellipse at 78% 35%, rgb(255 226 214 / 0.66), transparent 38%),
+    linear-gradient(180deg, #fbfaf8 0%, #f5f3f0 100%);
+}
+.hero-orb {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(1px);
+}
+.hero-orb-one {
+  top: -10rem;
+  right: -7rem;
+  width: 33rem;
+  height: 33rem;
+  background: radial-gradient(circle, rgb(255 194 168 / 0.22), transparent 68%);
+}
+.hero-orb-two {
+  bottom: -14rem;
+  left: 28%;
+  width: 30rem;
+  height: 30rem;
+  background: radial-gradient(circle, rgb(255 255 255 / 0.86), transparent 68%);
+}
+.coverage-surface {
+  background: linear-gradient(180deg, #f7f6f3 0%, #f0efec 100%);
+}
+.process-surface {
+  background:
+    radial-gradient(ellipse at 14% 80%, rgb(242 100 48 / 0.16), transparent 38%),
+    radial-gradient(ellipse at 84% 8%, rgb(255 255 255 / 0.06), transparent 34%),
+    #17181b;
+}
+.pricing-panel {
+  background: linear-gradient(125deg, #f27a46 0%, #e85b2d 48%, #c83e1d 100%);
+  box-shadow: 0 28px 80px -42px rgb(187 59 19 / 0.7);
+}
+.pricing-orb {
+  position: absolute;
+  top: -12rem;
+  right: -4rem;
+  width: 34rem;
+  height: 34rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgb(255 255 255 / 0.19), rgb(255 255 255 / 0) 68%);
+  pointer-events: none;
+}
+.section-kicker {
+  color: var(--color-brand-600);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+.section-title {
+  max-width: 42rem;
+  color: var(--color-ink);
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+}
+
+/* The photo-led hero and map intentionally stay on warm light surfaces in dark mode. */
+.dark .site-header,
+.dark .hero-surface,
+.dark .coverage-surface {
+  --color-ink: #141416;
+  --color-ink-soft: #2a2a2e;
+  --color-muted: #6f7178;
+  --color-line: #e7e7ea;
+  --color-panel: #ffffff;
+  --color-tile: #f3f3f5;
+  --color-brand-600: #e14d1c;
+}
+.dark .site-header {
+  background-color: rgb(255 255 255 / 0.9);
+  border-color: rgb(0 0 0 / 0.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-card,
+  .feature-card img,
+  .hero-surface a {
+    transition: none;
+  }
+}
+
 /* Diagonal hatching for the "in review" bars, as in the design. */
 .hatch-brand {
   background-color: var(--color-brand-500);
